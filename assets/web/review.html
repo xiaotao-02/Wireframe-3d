@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>参考与模型对照</title><link rel="icon" href="data:,"><link rel="stylesheet" href="review.css"></head>
+<body><header><strong>参考与模型对照</strong><label>视图 <select id="view"></select></label><label>模型 <select id="mode"><option value="clay">受光灰模</option><option value="material">交付材质</option></select></label><label><input id="overlay" type="checkbox">叠加参考</label><label>透明度 <input id="opacity" type="range" min="0" max="1" step=".05" value=".5"></label><a href="index.html">交互预览</a></header>
+<p id="notice">正在读取参考…</p><main><section><h2>原始参考（保持比例）</h2><div class="frame"><canvas id="source"></canvas></div></section><section><h2>当前模型（相机锁定）</h2><div class="frame"><iframe id="model" src="index.html" title="当前模型"></iframe><canvas id="overlay-image" hidden></canvas></div></section></main>
+<details><summary>尺寸与关键点测量</summary><pre id="audit"></pre></details><p id="error" role="alert"></p><script type="module" src="review.js"></script></body></html>

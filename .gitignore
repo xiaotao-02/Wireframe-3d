@@ -1,0 +1,19 @@
+# Dependencies and Python caches
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Generated previews, reports, and local workspace files
+_output/
+_codex/
+*.log
+.DS_Store
+Thumbs.db
+
+# Local credentials and environment settings
+.env
+.env.*
+!.env.example

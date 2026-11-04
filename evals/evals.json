@@ -1,0 +1,151 @@
+{
+  "skill": "wireframe-3d",
+  "purpose": "Held-out task prompts and observable acceptance criteria; listing is not execution evidence.",
+  "development_examples": [
+    "contact-switch",
+    "pneumatic-press",
+    "flanged-chamber",
+    "river-pavilion",
+    "indexed-workcell",
+    "curved-shell"
+  ],
+  "evals": [
+    {
+      "id": "check-valve",
+      "prompt": "用 Wireframe-3d 做弹簧止回阀的交互三维科普：展示阀座、阀芯、弹簧、前后管口，演示正向打开与反向关闭。保留实际通孔与内腔，允许拆解观察；没有实测尺寸时用示意参数，不显示真实流量。",
+      "expected": [
+        "实际阀座与阀芯相对位置控制开闭",
+        "管口与阀腔连通可见",
+        "弹簧压缩保持线径且不穿阀体",
+        "拆解时停止连通流线",
+        "背面和管口近景有实际截图"
+      ],
+      "failure_injection": "缩小真实管口几何而不改变期望口径，检查应失败"
+    },
+    {
+      "id": "rack-pinion",
+      "prompt": "用 Wireframe-3d 制作手轮驱动的齿轮齿条滑台。需要真实齿形、导轨、端部限位和部件选择，读数来自滑台实际位置；可暂停、拆解、复位。",
+      "expected": [
+        "转动角与齿条位移同源",
+        "滑台保持导向与限位",
+        "齿形不以相交光滑圆柱代替",
+        "暂停和复位涵盖嵌套轴与读数",
+        "近景核对啮合，区分示意齿形与制造设计"
+      ],
+      "failure_injection": "偏移导轨轴，声明的同轴/行程检查不能继续通过"
+    },
+    {
+      "id": "buffer-lift",
+      "prompt": "做两层缓存输送线的三维流程图：三个托盘经过入口、升降台和上层缓存；升降时入口互锁，托盘跟随升降台，支持暂停和步进。保持 Anatomy 浅色细线风格。",
+      "expected": [
+        "显式装载/升降/卸载/返回状态",
+        "托盘在转运边界连续且不重复出现",
+        "轨道和升降台接点合理",
+        "步进与连续播放共用状态",
+        "同一时刻的几何、工位和读数一致"
+      ],
+      "failure_injection": "在升降期间强行投放第二个托盘，应触发互锁或被测试发现"
+    },
+    {
+      "id": "reference-pavilion",
+      "prompt": "给定一份新的亭阁参考图，用 Wireframe-3d 制作可拆屋顶的建筑模型。还原柱网、梁板、屋檐和场地落点，保留窗洞，提供整体与局部近景。",
+      "required_input": "A previously unused user-provided reference image or measured drawing",
+      "expected": [
+        "不可见结构与已知参考区分",
+        "同机位比对比例、负空间和支承",
+        "真实洞口和梁柱接头",
+        "不能拿河谷示例替代用户参考",
+        "结构与视觉分别给结论"
+      ],
+      "failure_injection": "移动一根承重柱，应在构造/落点检查或明确近景验收中被发现"
+    },
+    {
+      "id": "repair-pipe-route",
+      "prompt": "给定一个新建的管路组件，端点已经接上，但中途穿过机架。修复实际管道几何，保留接口、细节与浅色插画效果，并给出修前修后的验证。",
+      "required_input": "A new builder with a deliberately intersecting pipe and frame",
+      "expected": [
+        "测试实际扫掠网格而非中心线代理",
+        "端点与途中间隙分别检查",
+        "局部改路不随机删减其他细节",
+        "超预算不能标通过",
+        "修前失败与修后结果、近景均可复查"
+      ],
+      "failure_injection": "保留错误管道仅挪动审计代理，验收不能因此通过"
+    },
+    {
+      "id": "repair-coaxial-explosion",
+      "prompt": "给定一个新同轴机械模型，展开滑块能到 100%，但壳体和内部模块仍重叠。依据实际装配关系修正分组、阶段和距离，并验证背面、窄屏、归位等待与暂停。",
+      "required_input": "A previously unused builder with overlapping exploded modules, an absolute setPose assignment and a disconnected effect",
+      "expected": [
+        "子零件随正确装配组运动",
+        "实际网格指定方向间距通过，未配置项明确显示",
+        "绝对姿态回调不覆盖展开位移",
+        "断开特效不被独显重新打开",
+        "当前几何适配取景并保留观察方向",
+        "实际归位后工况才开始；重复采样无漂移"
+      ],
+      "failure_injection": "把一个实际模块移回相邻模块中，间距检查必须失败；只改审计代理不能通过",
+      "execution": "NOT_RUN as a held-out task; the separate sectioned-drive fixture is development regression evidence"
+    },
+    {
+      "id": "reference-curved-product-first-delivery",
+      "prompt": "根据提供的多视角参考图，在本地制作这个产品的可编辑三维模型和可旋转网页。保留参考中的外形、主要开口与材质关系。请在首次交付前自行检查和修正，不要等我指出明显的造型问题；不需要内部机构和工况动画。",
+      "required_input": "A previously unused curved product reference set, with at least two useful views; retain original images and any known dimensions. Do not use the GT3 repair case as the held-out object.",
+      "expected": [
+        "在主体制作前识别主控轮廓、边界、负空间与输入的不确定性",
+        "代表部位的几何方法能表达局部曲率、开口与嵌合，不能只增加采样数",
+        "实际查看中间渲染并在首次交付前修正最明显的形体问题，保留可追溯前后证据",
+        "关键特征按轮廓、位置、比例、朝向与深度判断，存在占位件时不能标为匹配",
+        "匹配参考材质意图，不因模板缺省值自动使用细线插画或全透明外壳",
+        "同视角对照保留纵横比；尺寸测量与视觉结论分开，期望值不由被测模型生成",
+        "去掉纹理、特效和 UI 后主体仍可辨认，关键邻接部位自然接合；在目标尺寸重开默认入口核对完整性",
+        "保留可编辑源与用户要求的旋转交互，不额外优先制作内部机构和工况面板"
+      ],
+      "failure_injection": "使尺寸和交互检查通过，但保留错误窗线或以悬浮基本体代替灯壳/凹腔；视觉验收必须指出并阻止将其作为完成还原交付",
+      "execution": "NOT_RUN; prompt and rejection criteria only, not evidence of first-delivery quality"
+    },
+    {
+      "id": "reference-illustrated-mechanism-intent",
+      "prompt": "按提供的真实设备参考图做一个浅色细线插画风格的三维拆解科普。保留关键外形与开口，展示指定内部机构的运动。请用插画材质，不需要照片级渲染。",
+      "required_input": "A previously unused device reference and an explicit mechanism to explain",
+      "expected": [
+        "遵守明确要求的插画风格，不因输入是照片就强制切换写实渲染",
+        "保留可识别的外形、接口与实际开口，不把插画当成任意简化几何的许可",
+        "实际实现用户指定内部机构和动作，运动检查与外形验收分别完成",
+        "参考不支持的内部细节标明推测，并在首次交付前实际审图"
+      ],
+      "failure_injection": "把任务替换为只有写实外壳的静态产品页；即使渲染美观也必须判定未完成明确要求的插画拆解科普",
+      "execution": "NOT_RUN; counterexample for intent preservation, not a completed modeling evaluation"
+    },
+    {
+      "id": "reference-material-export-readback",
+      "prompt": "根据参考图制作这盏露营灯，保留灯罩、框架和提带的外形与材料区别。交付可编辑原生工程和 GLB，在指定查看器中默认完整显示，保持参考里的浅色底，不加装饰文字；不需要动画。请检查我实际收到的文件。",
+      "required_input": "A previously unused reference set showing a lamp with glass, metal and fabric or rubber parts; identify an available target GLB viewer and the native authoring tool. Retain the reference files. Do not reuse a development example as the reference.",
+      "expected": [
+        "按必须出现、必须保持、禁止出现、交付格式保留用户要求，不因无动画而添加分镜或运动功能",
+        "先检查形体与接合，在稳定照明下建立材料区别，再核对最终画面",
+        "保存并重开原生工程；重新加载实际 GLB 及其资源；在目标查看器观察灯罩透明层次、金属与提带区别",
+        "在实际观看尺寸检查默认主体完整、指定底色与禁止装饰文字；不能只用原生工程截图宣称导出正确",
+        "每项记录实际证据与 PASS/FAIL/NOT_RUN；失败定位到制作、导出或目标显示，修复后同条件回读",
+        "不生成虚构相似度分数，不把模板和导出命令成功等同视觉通过"
+      ],
+      "failure_injection": "保持原生工程正常，只让交付 GLB 的灯罩不透明或丢失材料；另让目标入口裁切主体或使用错误底色。最终回读应分别识别这些失败，源工程截图不能豁免。",
+      "execution": "NOT_RUN; held-out delivery-chain evaluation specification only"
+    },
+    {
+      "id": "mechanism-reading-and-playback",
+      "prompt": "按提供的机构图做杠杆夹具的三维科普，解释手柄如何带动连杆和压头完成夹紧与释放。保留可点选部件和播放暂停，画面在 960×540 显示时也要看清主要动作与简短说明；没有实测数据就用示意参数。",
+      "required_input": "A previously unused clamp reference with documented linkage and operating sequence, distinct from the contact-switch and pneumatic-press development examples; keep the mechanism source available for review.",
+      "expected": [
+        "先确定所属装配、真实连接及输入到输出的路径，再选择剖切、展开或引线，不以一屏全透明代替解释",
+        "机构原理与动作顺序的来源核验单独记录，未提供的力和真实工况数值不能编造",
+        "标签锚点绑定实际部件，运动、隐藏与独显后不误指；路径可追踪且不被标注挡住",
+        "状态表交代对象、实际变化、说明、结果和转换条件；动作与文案读数同源",
+        "在 960×540 正常缩放完整播放夹紧与释放，查看转换、暂停复位和说明停留；只采样静帧时完整播放保持 NOT_RUN",
+        "重开默认入口仍能看清主体和主信息，不靠进入专注模式或截图放大弥补默认显示问题"
+      ],
+      "failure_injection": "保留几何和控件测试通过，让压头尚未接触时字幕提前显示已夹紧，并使标签留在旧位置；应在连续播放和真实尺寸检查中被发现，不能只看开始与结束帧。",
+      "execution": "NOT_RUN; held-out comprehension and animation-semantic evaluation specification only"
+    }
+  ]
+}

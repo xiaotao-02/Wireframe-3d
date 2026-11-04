@@ -1,0 +1,29 @@
+// Shared preview chrome. Move existing controls to preserve IDs, listeners and model state.
+export function mountPreviewUI({tabs,views,transport,kind='model',sceneLabel='交互预览',sceneIndex='WIREFRAME / 3D',panelTitle='探索结构',status=null,pickControl=null,pickTab=null}){
+ const stage=document.getElementById('stage'),panel=document.getElementById('panel')||document.querySelector('aside');
+ document.body.dataset.previewUi='3';document.querySelector('main').classList.add('preview-layout');panel.classList.add('inspector');
+ let focus=document.getElementById('focus-mode');if(!focus){focus=document.createElement('button');focus.id='focus-mode';document.querySelector('header').append(focus);}
+ focus.className='focus-toggle';focus.title='收起面板 / F';focus.setAttribute('aria-controls',panel.id||'panel');focus.setAttribute('aria-pressed','false');focus.setAttribute('aria-label','进入专注模式');
+ focus.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg><span class="focus-text">专注模式</span><kbd>F</kbd>';
+ function setFocus(on){document.body.dataset.focus=String(on);panel.hidden=on;focus.setAttribute('aria-pressed',String(on));focus.setAttribute('aria-label',on?'退出专注模式':'进入专注模式');focus.querySelector('.focus-text').textContent=on?'退出专注':'专注模式';}
+ focus.onclick=()=>setFocus(document.body.dataset.focus!=='true');
+ document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||e.target.closest('input,select,textarea,[contenteditable=true]'))return;if(e.key.toLowerCase()==='f'){e.preventDefault();setFocus(document.body.dataset.focus!=='true');}if(e.key==='Escape'&&document.body.dataset.focus==='true'){setFocus(false);focus.focus();}});
+ const heading=document.createElement('div');heading.className='inspector-heading';heading.innerHTML=`<strong>${panelTitle}</strong><span>EXPLORER</span>`;
+ const tablist=document.createElement('div');tablist.className='inspector-tabs';tablist.setAttribute('role','tablist');tablist.setAttribute('aria-label',panelTitle);
+ const content=document.createElement('div');content.className='inspector-content';
+ function activate(i,moveFocus=false){tabs.forEach((t,j)=>{t.element.hidden=i!==j;t.button.setAttribute('aria-selected',String(i===j));t.button.tabIndex=i===j?0:-1;});content.scrollTop=0;panel.dataset.tab=tabs[i].id;if(moveFocus)tabs[i].button.focus();}
+ tabs.forEach((t,i)=>{const b=document.createElement('button');b.id='tab-'+t.id;b.textContent=t.label;b.setAttribute('role','tab');t.element.id='pane-'+t.id;t.element.setAttribute('role','tabpanel');t.element.setAttribute('aria-labelledby',b.id);b.setAttribute('aria-controls',t.element.id);b.onclick=()=>activate(i);b.onkeydown=e=>{let next=i;if(e.key==='ArrowRight')next=(i+1)%tabs.length;else if(e.key==='ArrowLeft')next=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=tabs.length-1;else return;e.preventDefault();activate(next,true);};t.button=b;tablist.append(b);content.append(t.element);});
+ const footer=document.createElement('div');footer.className='inspector-footer';footer.innerHTML='<span>拖动观察 · 点选探索</span><span>WIREFRAME 3D</span>';panel.replaceChildren(heading,tablist,content,footer);activate(0);
+ // Canvas selection already updates the original select before this bubbling listener runs.
+ if(pickControl&&pickTab){let before=null;stage.addEventListener('pointerdown',e=>{if(e.target.tagName==='CANVAS')before=pickControl.value;});stage.addEventListener('pointerup',e=>{if(e.target.tagName==='CANVAS'&&before!==null&&pickControl.value!==before){const i=tabs.findIndex(t=>t.id===pickTab);if(i>=0)activate(i);}before=null;});}
+ const caption=document.getElementById('view-label')||document.createElement('div');caption.id='view-label';caption.className='stage-caption';caption.innerHTML=`<div class="scene-label"><span class="scene-dot"></span>${sceneLabel}</div><div class="scene-index">${sceneIndex}</div>`;stage.append(caption);
+ const tools=document.createElement('div');tools.className='view-tools';tools.setAttribute('role','group');tools.setAttribute('aria-label','模型视图');for(const b of views.filter(Boolean))tools.append(b);stage.append(tools);
+ transport.classList.add('transport');transport.dataset.kind=kind;transport.setAttribute('role','group');transport.setAttribute('aria-label','演示控制');stage.append(transport);
+ const ranges=[...document.querySelectorAll('input[type=range]')],rangeValues=new WeakMap(),phaseNames={COLD:'待机',ARMING:'归位中',VENTING:'吹扫',PREBURNER:'预燃',IGNITION:'点火中',FIRING:'燃烧中',SHUTDOWN:'停机中'};
+ let statusView=null;if(status){status.classList.add('source-readout');statusView=document.createElement('div');statusView.className='live-status';statusView.setAttribute('role','status');transport.append(status,statusView);}
+ let last=0;function sync(now){if(now-last>100&&!document.hidden){for(const input of ranges){if(rangeValues.get(input)===input.value)continue;rangeValues.set(input,input.value);const min=Number(input.min)||0,max=Number(input.max)||100;input.style.setProperty('--range-progress',`${Math.max(0,Math.min(100,(Number(input.value)-min)/(max-min)*100))}%`);}if(statusView&&statusView.dataset.phase!==status.textContent){const phase=status.textContent;statusView.dataset.phase=phase;statusView.dataset.active=String(phase!=='COLD');statusView.textContent=phaseNames[phase]||phase;}last=now;}requestAnimationFrame(sync);}requestAnimationFrame(sync);
+ return {activate,setFocus};
+}
+export function transportContainer(){return document.createElement('div');}
+export function transportRule(){const div=document.createElement('div');div.className='transport-rule';div.setAttribute('aria-hidden','true');return div;}
+export function timelineBlock(label,input){const div=document.createElement('div');div.className='timeline-block';div.append(label,input);return div;}
