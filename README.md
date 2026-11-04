@@ -2,7 +2,7 @@
 
 用于制作可交互三维结构科普、机械拆解、装配演示与工厂工艺可视化的 AI Agent Skill。默认使用 Three.js 交付交互网页，也提供 Blender 工作流和共享泵模型示例。
 
-技能入口：[SKILL.md](SKILL.md) · 调用标识：`$wireframe-3d`
+技能入口：[SKILL.md](SKILL.md) · 调用标识：`$wireframe-3d` · [版本演变](HISTORY.md)
 
 ## 能做什么
 
