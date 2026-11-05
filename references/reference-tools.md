@@ -52,12 +52,14 @@ python "$skillDir/scripts/reference_constraints.py" validate "$workDir/reference
 |---|---|
 | `cubicBoundary([p0,p1,p2,p3])` | 四个三维控制点，返回边界函数；修改数组后重建网格 |
 | `coonsPatch({bottom,top,left,right})` | bottom/top 沿 u，left/right 沿 v，参数为 0–1；四角须吻合。仅插值边界，不保证相邻曲面切向连续或无折叠 |
-| `trimmedPatchGeometry(surface,{outline,holes,subdivisions})` | UV 轮廓裁切后细分映射，生成真实孔洞；默认外界是单位正方形。轮廓不重复末端点，自交、相交/嵌套孔、退化面会被拒绝 |
+| `trimmedPatchGeometry(surface,{outline,holes,subdivisions})` | UV 轮廓裁切后细分映射，生成真实孔洞；默认外界是单位正方形。自动规范化一个重复闭合端点，自交、相交/嵌套孔、其他重复点、退化面会被拒绝 |
 | `openingWallGeometry(surface,hole,{depth,segments})` | 沿同一孔边法线向内生成孔壁；主体也须传入相同 holes。segments 设为 `2 ** subdivisions` 使曲边采样吻合；不自动封底 |
 | `surfaceFrame(surface,u,v,{offset,reverse})` | 返回位置、切向、法向、姿态，offset 沿法线，局部 Z 指向法线 |
 | `placeOnSurface(object,surface,{u,v,offset,spin,reverse})` | 更新附件位置与朝向；附件和曲面使用同一父级局部坐标，主体变化后重新调用 |
 
 `assets/examples/curved-shell.js` 是可运行的原创试件：弯曲面板、贯通开口、孔壁、贴附构件。它不是车辆模板或复刻质量基准。
+
+完整对象优先看 `optical-sensor.js`：`surfaceRegion` 保证局部采样密度，`recessedOpeningGeometries` 共享显示网格的孔边，`surfaceDecalGeometry` 分离纹理朝向与几何朝向，`auditSurfaceGeometry` 检出局部反向/退化面。调用示例和边界见 [示例入口](starting-examples.md) 与 [构件接口](component-library.md)。
 
 可用 `prepare_web.py --example curved-shell --three <three目录> --out <预览目录>` 直接生成；需要对照页时另传已填写的 --reference 记录。
 

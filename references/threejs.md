@@ -2,13 +2,13 @@
 
 ## 新主题起点
 
-参考建模先读 [参考建模与首次交付](reference-reconstruction.md)，再选择几何制作方法。网页使用 Three.js 不等于复杂外壳必须靠基础几何拼装；程序化分片曲面与可编辑资产都可以按任务采用。参考外形通过关键阶段检查后再扩展交互；用户只要外观时，不自动补工况演示。
+先按 [示例入口](starting-examples.md) 打开一个构造方法相近的完整例子。参考读图、配准或复杂外壳需要额外方法时再读 [参考建模](reference-reconstruction.md) 的相关段落。参考外形通过关键阶段检查后再扩展所需交互。
 
 默认用独立 `buildScene()` 构建器，按 [构件库与主题接口](component-library.md) 组织几何和部件。`prepare_web.py --builder <subject.js> --three <node_modules/three> --out <web>` 复制通用预览、共享 UI、构件库与运行时。生成器导入 `./lib/*.js`，额外模块/贴图需明确打包。
 
 参考任务可增加 `--reference <reference.json>` 生成保持比例的 `review.html`；`--extra <相对文件或通配符>` 将项目模块/贴图一起复制并纳入哈希。字段、固定相机与截图步骤见 [参考建模工具](reference-tools.md)。
 
-跨题材先读 [题材与构造方法](subject-workflows.md)，完成白模和关键构造对照，再决定材质光照；参考项目按 [视觉对照与返修](visual-acceptance.md) 验收。`--example river-pavilion` 与 `--example flanged-chamber` 可验证本地工具运行，都是原创试件，不是用户参考替代物。
+找不到接近的示例时，用 [题材与构造方法](subject-workflows.md) 选择表示。视觉对照步骤集中在主流程与 [视觉对照](visual-acceptance.md)，无需为简单对象读取所有题材文档。
 
 ## 兼容的泵清单起点（PowerShell）
 

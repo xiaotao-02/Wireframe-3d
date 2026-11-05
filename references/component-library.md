@@ -13,12 +13,26 @@
 | `sweptTube` | `{points:[[x,y,z]], radii:[r], wall, segments, sides}` → Geometry | 空心变径扫掠；各半径对应实际曲线控制点，在采样曲线弧长上插值；不以较短的折线长度错置变径位置。弯折处不保证无自交，需近景/间隙检查 |
 | `flange` | `{outerRadius,boreRadius,thickness,boltCircle,boltRadius,boltCount}, material` → Mesh | 中心孔和螺栓孔为真实洞口；螺栓按同一孔距另建，不是物理连接求解 |
 | `beam` / `box` / `solid` | 尺寸、端点、材质 → Mesh | 默认投射/接收阴影；不将复杂轮廓强行换成盒体 |
+| `cylinderBetween` | `a,b,radius,material,{radiusEnd,segments,openEnded}` → Mesh | 两端点直接定义轴线；原生 CylinderGeometry 的 +Y 在库内对齐。radiusEnd 对应 b，单位与场景一致；不接收零长度或零半径 |
 | `seeded` | 整数种子 → 随机函数 | 改模型和对照截图时保持种子不变 |
 | `coilSpring` | `{radius,wireRadius,turns,length,segments,sides}, material` → `{mesh,setLength,minimumLength}` | 轴向 Z；改变螺距时保持线径，复用原几何对象以兼容轮廓；长度过短会拒绝。开口线材的示意螺旋，不计算弹力或应力 |
 
 ## 曲面 API：`assets/lib/surface-patches.js`
 
 连续曲面产品可先用 `assets/lib/surface-patches.js` 的边界曲面、UV 轮廓裁切、孔壁与局部贴附；API 和可运行曲面试件见 [参考建模工具](reference-tools.md)。它们不自动解算参考图，也不保证曲面拼接的切向连续。
+
+`surface-network.js` 的完整接入见 [示例入口](starting-examples.md) 和 `optical-sensor.js`：
+
+| API | 输入 / 返回 | 重点与边界 |
+|---|---|---|
+| `surfaceRegion` | `surface,{u:[min,max],v:[min,max],offset,reverse}` → `{point,mapUV}` | 把局部域重新参数化到 0..1，采样数完整作用于该局部；offset 沿主体法线，reverse 只选择偏移侧，不反转参数顺序 |
+| `recessedOpeningGeometries` | `surface,{outline,hole,depth,uSegments,vSegments,reverse,back}` → `{skin,wall,back,boundaryUV}` | 一个孔；从实际 skin 边界构造孔壁/内偏背板，绕序随 reverse 一起改变。back:false 为贯通孔。背板是边界三角盖，不自动生成光顺厚壳 |
+| `surfaceDecalGeometry` | `surface,{u,v,offset,uSegments,vSegments,reverse,flipU,flipV}` → Geometry | 局部受曲面约束贴花；贴图翻转不反射几何。默认沿外法线偏移 .001 个场景单位，须按尺度调整 |
+| `auditSurfaceGeometry` | `geometry,{minNormalDot,relativeAreaEpsilon}` → 报告 | 检查实际引用三角面、非有限顶点、退化、面法线与顶点法线冲突；故障样本包含三角索引。允许开放边界，不检查全局自交、尺寸、轮廓或密闭性 |
+
+`surface-patches.js` 的 `normalizeUVContour(points)` 返回新数组，去掉一个重复闭合端点后再验证；其余连续重复、自交和零面积仍拒绝。所有索引针对规范化后的顶点生成，不复用规范化前的索引。
+
+代码回归：`node scripts/verify_modeling_recipes.mjs --three <three目录> --report <JSON>`。它包含实际错轴投影、孔口射线、共享边界、局部采样及反向/退化/镜像偏移折叠的故障注入，不证明新模型外观合格。
 
 ## 建筑 API：`assets/lib/architecture.js`
 

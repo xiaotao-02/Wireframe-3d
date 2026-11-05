@@ -35,6 +35,8 @@
 
 ## 授权
 
+2026-11-05 的重构继续依据同一 Anatomy 固定版本：将“先打开最接近的完整示例”落实为 `starting-examples.md` 和 `optical-sensor.js`，保留 `contact-switch` 的状态/连接示范。端点圆柱、局部曲面域、共享显示孔边的凹腔、贴花 UV 与实际三角面审计均为本库独立实现；浮点裁切交点合并修复来自本次真实预览失败。没有移植 SVG painter order、固定部件数量、统一画风或禁止按参考复刻的规则。开发示例、故障注入和 mcode 独立任务验收分别记录。
+
 两来源均为 MIT：Anatomy 为 Copyright (c) 2026 Ryan；factory-anatomy 为 Copyright (c) 2026 Senthee Wu。完整通知见 `licenses/`。如果后续复制其代码或资产，连同原通知分发；示例使用的 Three.js MIT 由准备脚本复制到 `web/vendor/THREE-LICENSE.txt`。
 
 ## 当前验证范围

@@ -5,6 +5,17 @@ const positive=(name,...xs)=>{if(xs.some(x=>!Number.isFinite(x)||x<=0))throw Err
 export function solid(geometry,material){const m=new THREE.Mesh(geometry,material);m.castShadow=true;m.receiveShadow=true;return m;}
 export function box(size,material,position=[0,0,0]){positive('box',...size);const m=solid(new THREE.BoxGeometry(...size),material);m.position.fromArray(position);return m;}
 export function beam(a,b,width,depth,material){const d=vec(b).sub(vec(a));positive('beam',d.length(),width,depth);const m=box([width,depth,d.length()],material);m.position.copy(vec(a).add(vec(b)).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),d.normalize());return m;}
+// Native CylinderGeometry is +Y. Endpoints own the direction; radiusEnd belongs to b.
+export function cylinderBetween(a,b,radius,material,{radiusEnd=radius,segments=48,openEnded=false}={}){
+ if(![a,b].every(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)))throw Error('cylinderBetween: finite endpoints required');
+ const start=vec(a),end=vec(b),direction=end.clone().sub(start),length=direction.length();
+ positive('cylinderBetween',length,radius,radiusEnd);
+ if(!Number.isInteger(segments)||segments<3||segments>512)throw Error('cylinderBetween: segments must be 3..512');
+ const mesh=solid(new THREE.CylinderGeometry(radiusEnd,radius,length,segments,1,openEnded),material);
+ mesh.position.copy(start.add(end).multiplyScalar(.5));
+ mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
+ return mesh;
+}
 export function slabGeometry({outline,holes=[],thickness,bevel=0}){
  positive('slab',thickness);if(outline.length<3||!Number.isFinite(bevel)||bevel<0)throw Error('slab: invalid outline/bevel');
  const shape=new THREE.Shape(outline.map(p=>new THREE.Vector2(...p)));

@@ -57,9 +57,11 @@ function inside(p,poly){let yes=false;for(let i=0,j=poly.length-1;i<poly.length;
   const a=poly[i],b=poly[j];if(on(a,b,p))return false;
   if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])yes=!yes;
 }return yes;}
-function loop(points){
+export function normalizeUVContour(points){
   if(!Array.isArray(points)||points.length<3)throw Error('Contour needs at least three UV points');
   const p=points.map(x=>{if(!Array.isArray(x)||x.length!==2)throw Error('Invalid UV point');return x.map(unit);});
+  if(Math.hypot(p[0][0]-p.at(-1)[0],p[0][1]-p.at(-1)[1])<1e-10)p.pop();
+  if(p.length<3)throw Error('Contour needs at least three distinct UV points');
   for(let i=0;i<p.length;i++){
     if(Math.hypot(p[i][0]-p[(i+1)%p.length][0],p[i][1]-p[(i+1)%p.length][1])<1e-10)throw Error('Duplicate contour vertex');
     for(let j=i+1;j<p.length;j++)if(j!==i+1&&!(i===0&&j===p.length-1)&&intersects(p[i],p[(i+1)%p.length],p[j],p[(j+1)%p.length]))throw Error('Self-intersecting contour');
@@ -67,6 +69,7 @@ function loop(points){
   if(Math.abs(p.reduce((a,x,i)=>a+x[0]*p[(i+1)%p.length][1]-x[1]*p[(i+1)%p.length][0],0))<1e-12)throw Error('Zero area contour');
   return p;
 }
+const loop=normalizeUVContour;
 function loopsTouch(a,b){return a.some((x,i)=>b.some((y,j)=>intersects(x,a[(i+1)%a.length],y,b[(j+1)%b.length])));}
 export function trimmedPatchGeometry(surface,{outline=[[0,0],[1,0],[1,1],[0,1]],holes=[],subdivisions=3,reverse=false}={}) {
   if(!Number.isInteger(subdivisions)||subdivisions<0||subdivisions>6)throw Error('subdivisions must be an integer from 0 to 6');

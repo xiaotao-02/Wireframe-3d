@@ -1,5 +1,5 @@
 import * as T from 'three';
-import {box,solid,softenedBox,latheShell,slabGeometry,coilSpring,sweptTube} from './lib/geometry.js';
+import {box,solid,softenedBox,latheShell,slabGeometry,coilSpring,sweptTube,cylinderBetween} from './lib/geometry.js';
 import {illustrationPalette} from './lib/illustration.js';
 import {port,assemblyPart} from './lib/assembly.js';
 
@@ -10,7 +10,7 @@ export function buildScene({gap=.6}={}) {
  const root=new T.Group(),parts=[],m=illustrationPalette(),relations=[],features=[];
  const group=(id,label,description,explode)=>{const node=new T.Group();node.name=id;root.add(node);const p=assemblyPart({id,node,label,description,explode,ports:[],source:'Original educational Three.js reconstruction'});parts.push(p);return p;};
  const add=(p,o)=>{p.node.add(o);return o;};
- const cylinder=(r,h,mat,pos,n=48)=>{const o=solid(new T.CylinderGeometry(r,r,h,n).rotateX(Math.PI/2),mat);o.position.fromArray(pos);return o;};
+ const cylinder=(r,h,mat,[x,y,z],n=48)=>cylinderBetween([x,y,z-h/2],[x,y,z+h/2],r,mat,{segments:n});
  const ring=(p,at,ro,ri,h)=>{const o=solid(latheShell({profile:[[0,ro],[h,ro]],wall:ro-ri}),m.metal);o.position.fromArray(at);return add(p,o);};
  const screw=(p,x,y,z)=>{add(p,cylinder(.085,.055,m.metal,[x,y,z+.0275],6));add(p,box([.09,.012,.004],m.dark,[x,y,z+.058]));};
  const P=(p,id,position,normal=[0,0,1],node=p.node)=>{p.ports.push(port(node,{id,position,normal}));};
