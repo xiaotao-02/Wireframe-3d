@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import zipfile
 
-SKIP = {'.git', 'node_modules', '__pycache__'}
+SKIP = {'.git', 'node_modules', '__pycache__', '_local'}
 def entries(root):
     result = {}
     for p in sorted(root.rglob('*')):

@@ -9,6 +9,7 @@ venv/
 # Generated previews, reports, and local workspace files
 _output/
 _codex/
+_local/
 *.log
 .DS_Store
 Thumbs.db
