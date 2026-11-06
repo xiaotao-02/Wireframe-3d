@@ -26,9 +26,9 @@
 | `D:\code\web3d-m78-wireframe-ab` | `D:\code\Wireframe-3d\_local\experiments\web3d-m78-wireframe-ab` |
 | `D:\code\Wireframe-3d-history-20261104.zip` | `D:\code\Wireframe-3d\_local\packages\Wireframe-3d-history-20261104.zip` |
 
-前三个旧目录保留为隐藏的 NTFS Junction，目标是上表的新位置，不是另一份数据。它们供已有绝对路径、历史证据和旧脚本继续访问；资源管理器开启“隐藏的项目”时仍可看到。不要把兼容链接当成冗余文件夹递归清理。旧 ZIP 路径不保留副本。
+前三个旧目录最初保留为隐藏的 NTFS Junction，2026-11-05 已按用户要求移除这些兼容入口。实体数据保留在上表的新位置；资源管理器中的 `D:\code` 不再显示这三个旧目录。旧 ZIP 路径也不保留副本。清理记录及必要时恢复兼容入口的脚本见 [链接清理记录](_local/organization-20261105/legacy-link-cleanup/README.md)。
 
-本次整理不改写历史源码、原始提示词、运行日志、MANIFEST 或原 ZIP；其中出现的旧路径保留原样。新项目、命令和书签使用新路径。迁移核验只验证文件完整性，不代表重跑了历史模型。
+本次整理不改写历史源码、原始提示词、运行日志、MANIFEST 或原 ZIP；其中出现的旧路径保留原样，查阅时按上表映射到新位置。新项目、命令和书签使用新路径。一次性历史采集与归档脚本是当时的操作记录，不应直接重跑。迁移核验只验证文件完整性，不代表重跑了历史模型。
 
 ## 后续维护
 
@@ -36,6 +36,7 @@
 - 新验证批次放在 `_local/validation/YYYYMMDD-主题/`；原始输入、冻结候选、运行输出及审核记录分别保存。
 - 新对比工具放在 `_local/experiments/`，正式冻结的历史包及对应哈希继续放入 `_local/history/` 或 `_local/packages/`。
 - 历史阶段保留实际来源和完整性分类，不重新编号成虚构的 Git 发布版本。2026-11-04 的总 ZIP 保留当时的 19 阶段；新增候选以实时 `history/catalog.json` 为准。
+- 在仓库根目录执行 `python _local/history/tools/verify_archive.py` 可只读核验现存源码与 ZIP；可用 `--output 新报告路径` 保存新报告，不覆盖旧报告。
 
 `D:\code\minimax-code-mcp` 是独立、已注册且正在使用的 MCP 服务，因此保留原位。它的 `workspaces/` 包含 MiniMax 会话的实际工作目录，现有会话路径也保持原样。对比批次的模型成果仍位于原来的市场项目交付目录；这里归并的是截图中相关的版本资料与测试工具。
 

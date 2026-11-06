@@ -4,6 +4,17 @@ export const vec = a => new THREE.Vector3(...a);
 const positive=(name,...xs)=>{if(xs.some(x=>!Number.isFinite(x)||x<=0))throw Error(`${name}: expected positive finite dimensions`);};
 export function solid(geometry,material){const m=new THREE.Mesh(geometry,material);m.castShadow=true;m.receiveShadow=true;return m;}
 export function box(size,material,position=[0,0,0]){positive('box',...size);const m=solid(new THREE.BoxGeometry(...size),material);m.position.fromArray(position);return m;}
+// Place a local frame in parent coordinates. x/y are perpendicular destination directions;
+// local anchor maps to origin. This preserves positive scale and never reflects geometry/UVs.
+export function placeInFrame(object,{origin=[0,0,0],x=[1,0,0],y=[0,1,0],anchor=[0,0,0]}={}){
+ if(!object?.isObject3D||![origin,x,y,anchor].every(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)))throw Error('placeInFrame: object and finite vectors required');
+ const X=vec(x),Y=vec(y);positive('placeInFrame',X.length(),Y.length(),...object.scale.toArray());X.normalize();Y.normalize();
+ if(Math.abs(X.dot(Y))>1e-6)throw Error('placeInFrame: x/y must be perpendicular');
+ const Z=X.clone().cross(Y).normalize();Y.copy(Z).cross(X);
+ object.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(X,Y,Z));
+ object.position.copy(vec(origin)).sub(vec(anchor).multiply(object.scale).applyQuaternion(object.quaternion));
+ object.updateMatrix();return object;
+}
 export function beam(a,b,width,depth,material){const d=vec(b).sub(vec(a));positive('beam',d.length(),width,depth);const m=box([width,depth,d.length()],material);m.position.copy(vec(a).add(vec(b)).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),d.normalize());return m;}
 // Native CylinderGeometry is +Y. Endpoints own the direction; radiusEnd belongs to b.
 export function cylinderBetween(a,b,radius,material,{radiusEnd=radius,segments=48,openEnded=false}={}){

@@ -14,6 +14,7 @@
 | `flange` | `{outerRadius,boreRadius,thickness,boltCircle,boltRadius,boltCount}, material` → Mesh | 中心孔和螺栓孔为真实洞口；螺栓按同一孔距另建，不是物理连接求解 |
 | `beam` / `box` / `solid` | 尺寸、端点、材质 → Mesh | 默认投射/接收阴影；不将复杂轮廓强行换成盒体 |
 | `cylinderBetween` | `a,b,radius,material,{radiusEnd,segments,openEnded}` → Mesh | 两端点直接定义轴线；原生 CylinderGeometry 的 +Y 在库内对齐。radiusEnd 对应 b，单位与场景一致；不接收零长度或零半径 |
+| `placeInFrame` | `object,{origin,x,y,anchor}` → 原 Object3D | 将局部锚点放在父组 origin，局部 X/Y 对齐指定垂直方向；保持右手系与正缩放。适用于回转/挤出件和部件组，见 [坐标与表面](geometry-frames.md) |
 | `seeded` | 整数种子 → 随机函数 | 改模型和对照截图时保持种子不变 |
 | `coilSpring` | `{radius,wireRadius,turns,length,segments,sides}, material` → `{mesh,setLength,minimumLength}` | 轴向 Z；改变螺距时保持线径，复用原几何对象以兼容轮廓；长度过短会拒绝。开口线材的示意螺旋，不计算弹力或应力 |
 
@@ -63,6 +64,8 @@ return {
 ```
 
 每个可拆装 node 必须是 root 的独立直接子组，初始 position 为 rest pose；其内部零件随组运动。同一节点不要重复登记，ID 非空且唯一。模板按 ID 选择、独立查看、白模、装配/展开取景；没有预设 `hub`、`rotor`、`cover`。模板已接入共享时钟与姿态恢复；复杂工况仍需自己的纯状态模型，见 [共享状态与可回放验收](motion-and-verification.md)。
+
+复杂主题可返回独立的 `modelPlan` 组成树与构造依赖，不改变上述 runtime 父子契约。`model-plan.js` 检查叶节点与实际部件的对应并列出声明的受影响部件；不求解几何或自动重建。字段、参数化构造示例及检查入口见[分层建模](hierarchical-modeling.md)。
 
 ```powershell
 $skillDir = 'D:\code\Wireframe-3d'

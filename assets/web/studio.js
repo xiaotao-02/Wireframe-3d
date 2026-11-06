@@ -25,7 +25,8 @@ try {
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(1000,1000),new THREE.ShadowMaterial({opacity:.12}));ground.position.z=restBox.min.z-.035;ground.receiveShadow=true;scene.add(ground);
  const ink=mountIllustration(root,{renderer,scene,bounds:restBox});
  let selected=parts[0].id,view='hero',focus=false,frames=0,frame=0,last=null,rendering=false,visible=true;
- let recipe={},audit=null,auditKey=null,telemetry={},lastAmount=-1,manualCamera=false,lastPhase='';
+ let recipe={},audit=null,auditKey=null,telemetry={},lastAmount=-1,lastStroke=-1,manualCamera=false,lastPhase='';
+ let motionBox=restBox.clone();
  const directions={hero:model.direction||[1,-1.4,1],back:(model.direction||[1,-1.4,1]).map((v,i)=>i<2?-v:v),top:[.001,-.001,1]};
  const referenceViews={front:{direction:[1,0,0],up:[0,0,1]},rear:{direction:[-1,0,0],up:[0,0,1]},side:{direction:[0,1,0],up:[0,0,1]},opposite:{direction:[0,-1,0],up:[0,0,1]},top:{direction:[0,0,1],up:[0,-1,0]},...(model.referenceViews||{})};
  for(const spec of Object.values(referenceViews))referenceView(spec);
@@ -36,7 +37,7 @@ try {
  const phaseLive=document.createElement('span');phaseLive.className='sr-only';phaseLive.setAttribute('aria-live','polite');stage.append(phaseLive);
  const play=document.createElement('button');play.id='play';play.textContent='暂停';
  const status=document.createElement('span');status.id='status';const dock=transportContainer();dock.append(play,status);
- function bounds(){let b=visibleGeometryBounds(focus?parts.find(p=>p.id===selected).node:root);if(b.isEmpty())b=visibleGeometryBounds(root);return b.isEmpty()?restBox:b;}
+ function bounds(){let b=visibleGeometryBounds(focus?parts.find(p=>p.id===selected).node:root);if(b.isEmpty())b=visibleGeometryBounds(root);if(!focus&&!reviewMode.enabled&&motion.snapshot().amount===0)b.union(motionBox);return b.isEmpty()?restBox:b;}
  function fit(preserve=false){
    const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
    const direction=preserve?camera.position.clone().sub(controls.target).toArray():directions[view];
@@ -59,6 +60,12 @@ try {
    const phase=telemetry.phase||({assembling:'正在合拢',exploded:'已展开',moving:'正在拆装',running:'正在运行',ready:'已装配'})[s.phase];
    if(phase!==lastPhase){if(lastPhase)phaseLive.textContent=phase;lastPhase=phase;}
    if(Math.abs(s.amount-lastAmount)>.0001){fit(manualCamera);lastAmount=s.amount;}
+   // Expand automatic framing when a moving part leaves the known envelope. Do not
+   // fight a user's orbit/zoom, move a fixed comparison camera, or shrink each cycle.
+   if(s.stroke!==lastStroke){
+    lastStroke=s.stroke;
+    if(s.amount===0&&!focus&&!reviewMode.enabled){const current=visibleGeometryBounds(root);if(!motionBox.containsBox(current)){motionBox.union(current);if(!manualCamera)fit();}}
+   }
  }
  function snapshot(){const s=motion.snapshot();return {version:'wireframe-preview/2',buildId:buildInfo.id,subject:model.title,...s,telemetry,selected,isolated:$('isolate').checked,style:$('render-style').value,clay:$('clay').checked,audit,review:reviewMode,parts:parts.length,pose:runtime.snapshot(),camera:{position:camera.position.toArray(),target:controls.target.toArray(),up:camera.up.toArray(),zoom:camera.zoom,recipe},frames,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}
  function appearance(){
@@ -81,7 +88,7 @@ try {
    const labels={pass:'已配置项通过',fail:'发现问题','not-applicable':'当前姿态不适用',unconfigured:'未配置'};
    $('connection-result').textContent=`装配：${labels[assembly.status]||'有未核验项'}；展开间距：${labels[explosion.status]||'有未核验项'}；几何锚点：${labels[anchors.status]||'有未核验项'}`;wake();return audit;
  }
- function reset(){motion.reset();selected=parts[0].id;view='hero';focus=manualCamera=false;$('isolate').checked=false;$('clay').checked=false;ink.setClay(false);select(selected);apply();fit();wake();}
+ function reset(){motion.reset();motionBox.copy(restBox);lastStroke=-1;selected=parts[0].id;view='hero';focus=manualCamera=false;$('isolate').checked=false;$('clay').checked=false;ink.setClay(false);select(selected);apply();fit();wake();}
  function setView(value){if(!directions[value]&&!referenceViews[value])throw Error('Unknown view');view=value;manualCamera=false;if(reviewMode.enabled)reviewMode.camera=referenceView(referenceViews[value]||{direction:directions[value],up:[0,0,1]});fit();wake();}
  function setReview({enabled=true,view:requested='front',camera:custom,mode='clay'}={}){
    if(!['clay','material'].includes(mode))throw Error('Review mode must be clay or material');

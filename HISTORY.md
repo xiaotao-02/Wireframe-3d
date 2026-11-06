@@ -45,6 +45,6 @@
 
 完整版本档案单独保存，避免历史说明被误读为当前技能指令。每阶段包含源码、来源、逐文件 SHA-256、原报告和 ZIP；另有相邻主流程 diff。该归档未打包进当前技能运行依赖。
 
-2026-11-05 本机目录归并后，档案入口为 [`_local/history/README.md`](_local/history/README.md)，原始总 ZIP 位于 `_local/packages/`，验证记录位于 `_local/validation/`。完整路径映射及兼容入口见 [本机工作区](WORKSPACE.md)；这些本机资料不随 Git 克隆下载。
+2026-11-05 本机目录归并后，档案入口为 [`_local/history/README.md`](_local/history/README.md)，原始总 ZIP 位于 `_local/packages/`，验证记录位于 `_local/validation/`。旧的三个目录兼容链接已移除，完整路径映射与整理记录见 [本机工作区](WORKSPACE.md)；这些本机资料不随 Git 克隆下载。
 
 历史验证只对应其当时版本与环境。本轮归档重新验证了复制与 ZIP 字节一致性，没有重跑全部历史模型。

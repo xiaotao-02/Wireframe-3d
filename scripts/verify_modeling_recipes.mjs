@@ -10,6 +10,19 @@ register('data:text/javascript,'+encodeURIComponent(`export async function resol
 const T=await import(url),S=await import('../assets/lib/surface-network.js'),P=await import('../assets/lib/surface-patches.js'),G=await import('../assets/lib/geometry.js');
 const checks=[],test=(name,fn)=>{try{fn();checks.push({name,status:'pass'});}catch(e){checks.push({name,status:'fail',error:e.stack});}};
 const near=(a,b,e=1e-6)=>assert.ok(Math.abs(a-b)<e,`${a} != ${b}`),plane={point:(u,v)=>new T.Vector3(u,v,0)},hole=[[.23,.31],[.76,.31],[.76,.69],[.23,.69]];
+test('Frame placement centers an asymmetric extrusion and preserves its roll without reflecting it',()=>{
+ const m=G.solid(G.slabGeometry({outline:[[-2,-.2],[1,-.2],[1,.4],[-2,.1]],thickness:6}),new T.MeshBasicMaterial());
+ const frame={origin:[4,5,6],x:[1,0,0],y:[0,0,1],anchor:[0,0,3]};G.placeInFrame(m,frame);m.updateMatrixWorld();
+ const b=new T.Box3().setFromObject(m);near(b.min.y,2);near(b.max.y,8);near(b.min.x,2);near(b.max.x,5);near(b.min.z,5.8);near(b.max.z,6.4);
+ const first=m.matrix.toArray();G.placeInFrame(m,frame);assert.deepEqual(m.matrix.toArray(),first);near(m.matrix.determinant(),1);
+ assert.throws(()=>G.placeInFrame(m,{x:[1,0,0],y:[1,1,0]}),/perpendicular/);
+ m.scale.x=-1;assert.throws(()=>G.placeInFrame(m,frame),/positive/);
+});
+test('A non-centered native Y lathe lands on the intended X segment from its explicit local anchor',()=>{
+ const m=G.solid(new T.LatheGeometry([[.2,0],[.3,.1],[.3,.6],[.2,.8]].map(p=>new T.Vector2(...p)),48),new T.MeshBasicMaterial());
+ G.placeInFrame(m,{origin:[2,3,4],x:[0,1,0],y:[1,0,0],anchor:[0,.4,0]});m.updateMatrixWorld();
+ const b=new T.Box3().setFromObject(m);near(b.min.x,1.6);near(b.max.x,2.4);near(b.min.y,2.7);near(b.max.y,3.3);near(b.min.z,3.7);near(b.max.z,4.3);
+});
 test('Endpoint cylinders occupy the requested segment on X/Y/Z and an oblique axis',()=>{
  for(const b of [[2,0,0],[0,-2,0],[0,0,2],[1,2,3]]){
   const a=[-.1,.2,.3],m=G.cylinderBetween(a,b,.1,new T.MeshBasicMaterial()),start=new T.Vector3(...a),axis=new T.Vector3(...b).sub(start),length=axis.length();axis.normalize();m.updateMatrixWorld();

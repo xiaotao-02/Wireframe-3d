@@ -7,9 +7,24 @@
     "flanged-chamber",
     "river-pavilion",
     "indexed-workcell",
-    "curved-shell"
+    "curved-shell",
+    "stacked-fixture"
   ],
   "evals": [
+    {
+      "id": "hierarchical-layout-change",
+      "prompt": "根据提供的新设备箱参考和尺寸制作可编辑三维模型，保留箱体、铰接盖板、控制面板、通风开口和安装孔。先确认整体布局，再分组件构造。完成初版后，把箱宽增加 20 mm、安装孔横向间距增加 10 mm，保持板厚、铰链轴线关系和无关细节。展示修改后的整体与关键接合。",
+      "required_input": "A previously unused equipment enclosure reference and explicit dimensions, distinct from stacked-fixture; retain the input and first version before changing parameters.",
+      "expected": [
+        "先查看整体灰模，明确外包络、开口和布局；不为已有明确参考另造多方案",
+        "计划节点对应构造函数、稳定部件 ID、尺寸依据与依赖；运行时分组满足现有展开契约",
+        "修改实际轮廓和孔位，不用整体缩放代替尺寸编辑；无关细节与板厚保持",
+        "根据依赖重建并重新核对完整组件；验收值来自输入尺寸而非被测网格",
+        "实际检查改后孔、盖板边缘、铰链轴和展开/复位；记录截图与当前源码，不沿用旧版本通过记录"
+      ],
+      "failure_injection": "仅更新计划与端口数值，保留旧孔位或旧盖板网格。计划检查可以通过，但真实几何或接合验收必须发现失败。",
+      "execution": "NOT_RUN; held-out modeling and revision specification only. The stacked-fixture tests are development regressions."
+    },
     {
       "id": "check-valve",
       "prompt": "用 Wireframe-3d 做弹簧止回阀的交互三维科普：展示阀座、阀芯、弹簧、前后管口，演示正向打开与反向关闭。保留实际通孔与内腔，允许拆解观察；没有实测尺寸时用示意参数，不显示真实流量。",

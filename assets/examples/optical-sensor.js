@@ -1,7 +1,7 @@
 // Complete original teaching object: curved optical sensor cover with a recessed window.
 // Study the shared surface/opening/attachment construction; replace its shape for a new subject.
 import * as T from 'three';
-import {box,solid,slabGeometry,cylinderBetween} from './lib/geometry.js';
+import {box,solid,slabGeometry,cylinderBetween,placeInFrame} from './lib/geometry.js';
 import {placeOnSurface} from './lib/surface-patches.js';
 import {recessedOpeningGeometries,surfaceDecalGeometry,surfaceRegion,trimmedGridGeometry,auditSurfaceGeometry} from './lib/surface-network.js';
 
@@ -26,7 +26,11 @@ export function buildScene(){
  const windowMesh=solid(trimmedGridGeometry(region,{uSegments:32,vSegments:24}),windowMaterial);windowMesh.name='window-glass';glass.add(windowMesh);
  const led=box([.075,.035,.018],new T.MeshStandardMaterial({color:'#f3ac38',emissive:'#a3530b',emissiveIntensity:.35}));
  placeOnSurface(led,skinSurface,{u:.19,v:.5,offset:.009});fittings.add(led);
- for(const y of [-.28,.28])fittings.add(cylinderBetween([1.1,y,.14],[1.24,y,.14],.10,metal));
+ // Native LatheGeometry revolves around +Y; anchor is its local axial midpoint.
+ const knobProfile=[[0,0],[.075,0],[.10,.025],[.10,.115],[.075,.14],[0,.14]].map(p=>new T.Vector2(...p));
+ for(const y of [-.28,.28])fittings.add(placeInFrame(solid(new T.LatheGeometry(knobProfile,40),metal),{
+  origin:[1.17,y,.14],x:[0,1,0],y:[1,0,0],anchor:[0,.07,0]
+ }));
  for(const [u,v] of [[.08,.13],[.92,.13],[.08,.87],[.92,.87]]){
   const screw=cylinderBetween([0,0,-.012],[0,0,.012],.025,metal,{segments:12});placeOnSurface(screw,skinSurface,{u,v,offset:.01});cover.add(screw);
  }

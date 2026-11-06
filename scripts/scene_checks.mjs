@@ -5,10 +5,13 @@ import {createSceneRuntime} from './lib/scene-runtime.js';
 import {auditAssembly,measureBore} from './lib/assembly.js';
 import {auditExplosion} from './lib/explosion.js';
 import {auditMeshAnchors} from './lib/mesh-anchors.js';
+import {auditModelPlan} from './lib/model-plan.js';
 const checks=[],samples=[];
 const check=(name,fn)=>{try{fn();checks.push({name,status:'pass'});}catch(e){checks.push({name,status:'fail',reason:e.message});}};
 try {
  const model=await buildScene(),runtime=createSceneRuntime(model);
+ const modelPlan=auditModelPlan(model);
+ if(modelPlan.status!=='unconfigured')check('declared hierarchy binds the actual semantic parts',()=>assert.equal(modelPlan.status,'pass',modelPlan.reason));
  const transforms=()=>{const a=[];model.root.traverse(o=>a.push([...o.position.toArray(),...o.quaternion.toArray(),...o.scale.toArray(),o.visible]));return a;};
  const amounts=[...new Set([.25,.5,1,...(model.explosionChecks||[]).flatMap(r=>r.at||[1])])].sort((a,b)=>a-b);
  const poseList=[...Array.from({length:9},(_,i)=>({amount:0,stroke:model.setPose?i/8:0})),...amounts.map(amount=>({amount,stroke:0}))];
@@ -46,6 +49,6 @@ try {
    try{assert.equal(measureBore(feature).status,'fail');}finally{feature.mesh.geometry.dispose();feature.mesh.geometry=geometry;}
  });
  const status=checks.some(c=>c.status==='fail')?'fail':'pass';
- console.log(JSON.stringify({status,checks,samples,scope:'Discrete numerical checks on real geometry and declared interfaces only.',visual:'NOT_RUN',referenceFidelity:'NOT_RUN',continuousClearance:'NOT_PROVEN'},null,2));
+ console.log(JSON.stringify({status,checks,samples,modelPlan,scope:'Discrete numerical checks on real geometry and declared interfaces only.',visual:'NOT_RUN',referenceFidelity:'NOT_RUN',continuousClearance:'NOT_PROVEN'},null,2));
  if(status==='fail')process.exitCode=1;
 }catch(e){console.log(JSON.stringify({status:'fail',error:e.stack,checks,samples}));process.exitCode=1;}
